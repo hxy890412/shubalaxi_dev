@@ -465,7 +465,7 @@ input::placeholder{
 .hamster.boss {
     width: 85px;
     height: 85px;
-    animation: shake 0.3s infinite;
+    /* animation: shake 0.3s infinite; */
     position: absolute;
     bottom: 10px;
     left: 5px;
@@ -474,10 +474,10 @@ input::placeholder{
 
 }
 
-@keyframes shake {
+/* @keyframes shake {
     0%, 100% { transform: translate(0, 0); }
     50% { transform: translate(5px, 0); }
-}
+} */
 
 .alert {
     position: fixed;
