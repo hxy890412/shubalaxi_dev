@@ -506,3 +506,9 @@ body.keyboard-open {
     width: 100%;
 }
 
+p.version{
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 8px;
+}
