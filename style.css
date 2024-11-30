@@ -511,4 +511,5 @@ p.version{
     top: 4px;
     left: 4px;
     font-size: 8px;
+    z-index: 2;
 }
