@@ -20,13 +20,14 @@
 </head>
 
 <body>
-    <p class="version">測試版本1.0.1</p>
+    <p class="version">測試版本1.0.4</p>
     <div class="hamster_game_box">
         <button id="leaderboard-button">排行榜</button>
         <div id="mask_bg"></div>
         <div id="leaderboard">
             <h2>排行榜</h2>
             <ul id="leaderboard-list"></ul>
+            <ul id="user-score"></ul>
             <button id="close-leaderboard">關閉</button>
         </div>
 
@@ -101,7 +102,7 @@
         import { getDatabase, ref, set, push, onValue, get, query, orderByChild }
             from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-            const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyB55n9AKgiOC2zQ-HW7sMx1HhScz6vxMI4",
             authDomain: "dev-shubalaxi.firebaseapp.com",
             projectId: "dev-shubalaxi",
@@ -109,7 +110,7 @@
             messagingSenderId: "829762203798",
             appId: "1:829762203798:web:f144c045ee00fed5e312b7",
             measurementId: "G-YYCBWMDGKL"
-            };
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -261,7 +262,9 @@
 
             hole.appendChild(hamster);
 
-            hamster.addEventListener('click', (event) => {
+            function handleHamsterClick(event) {
+                event.preventDefault(); // 防止默認觸摸事件
+
                 // 防止同一隻鼠鼠重複點擊
                 if (hamster.dataset.clicked) return;
                 hamster.dataset.clicked = 'true';
@@ -274,14 +277,14 @@
                     playSoundWithWebAudio('music/click.mp3');
                 }
 
-                // 淡出效果，而不是立即移除
-                hamster.style.opacity = '0.5';
-                setTimeout(() => {
-                    hamster.remove();
-                }, 200);
+                // 立即移除，不使用淡出效果
+                hamster.remove();
 
                 elements.score.textContent = GameState.score;
-            });
+            }
+
+            hamster.addEventListener('click', handleHamsterClick);
+            hamster.addEventListener('touchstart', handleHamsterClick);
 
             setTimeout(() => {
                 hamster.style.transform = 'translateY(-70px)';
@@ -293,7 +296,6 @@
                 }, 1200);
             }, randomTime(1000, 2000));
         }
-
         // Game control functions
         function startGame() {
             GameState.score = 0;
@@ -319,7 +321,7 @@
             // 隨機時間觸發 Boss 模式
             setTimeout(() => {
                 if (GameState.isPlaying) startBossMode();
-            }, randomTime(25000, 30000));
+            }, 30000);
 
             // 設置遊戲計時器
             const timerInterval = setInterval(() => {
@@ -380,58 +382,64 @@
                 // 停止普通鼠鼠的生成
                 clearInterval(GameState.hamsterInterval);
 
-                // 設置 Boss 鼠鼠快速生成和消失的邏輯
+                // 同時在多個洞口生成 Boss
                 const bossInterval = setInterval(() => {
-                    const hole = randomHole();
-                    const bossHamster = document.createElement('img');
-                    bossHamster.src = 'img/boss2.png';
-                    bossHamster.classList.add('hamster', 'boss');
-                    bossHamster.style.display = 'block';
+                    // 隨機選擇 2-3 個洞口
+                    const holes = document.querySelectorAll('.hole');
+                    const selectedHoles = Array.from(holes)
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, Math.floor(Math.random() * 2) + 2);
 
-                    // 新增唯一標識符
-                    const uniqueId = Date.now() + Math.random();
-                    bossHamster.dataset.id = uniqueId;
+                    selectedHoles.forEach(hole => {
+                        const bossHamster = document.createElement('img');
+                        bossHamster.src = 'img/boss2.png';
+                        bossHamster.classList.add('hamster', 'boss');
+                        bossHamster.style.display = 'block';
 
-                    bossHamster.addEventListener('click', (event) => {
-                        // 防止同一隻鼠鼠重複點擊
-                        if (bossHamster.dataset.clicked) return;
-                        bossHamster.dataset.clicked = 'true';
+                        // 使用 touchstart 和 click 事件確保跨平台
+                        const handleClick = (event) => {
+                            event.preventDefault(); // 防止默認觸摸事件
 
-                        GameState.score += 50;
-                        elements.score.textContent = GameState.score;
+                            // 確保只處理一次點擊
+                            if (bossHamster.dataset.clicked) return;
+                            bossHamster.dataset.clicked = 'true';
 
-                        // 淡出效果，而不是立即移除
-                        bossHamster.style.opacity = '0.5';
+                            GameState.score += 50;
+                            elements.score.textContent = GameState.score;
+
+                            // 立即移除，不使用淡出效果
+                            bossHamster.remove();
+
+                            playSoundWithWebAudio('music/boss_sound.mp3');
+                        };
+
+                        // 同時添加兩種事件監聽
+                        bossHamster.addEventListener('click', handleClick);
+                        bossHamster.addEventListener('touchstart', handleClick);
+
+                        hole.appendChild(bossHamster);
+
+                        // 調整移除邏輯，Boss 會更快消失
                         setTimeout(() => {
-                            bossHamster.remove();
-                        }, 200);
-
-                        playSoundWithWebAudio('music/boss_sound.mp3');
+                            if (bossHamster.parentNode) {
+                                bossHamster.remove();
+                            }
+                        }, 500);
                     });
+                }, 300); // 縮短生成間隔，增加難度
 
-                    hole.appendChild(bossHamster);
-
-                    // 調整移除邏輯
-                    setTimeout(() => {
-                        if (!bossHamster.dataset.clicked) {
-                            bossHamster.remove();
-                        }
-                    }, 600);
-                }, 200);
-
-                // Boss 模式持續 15 秒
+                // Boss 模式持續時間
                 setTimeout(() => {
                     clearInterval(bossInterval);
                     bossMusic.pause();
                     bossMusic.currentTime = 0;
-                    elements.backgroundMusic.play(); // 恢復背景音樂
+                    elements.backgroundMusic.play();
 
                     // 恢復普通鼠鼠的生成
                     GameState.hamsterInterval = setInterval(showHamster, 300);
                 }, 15000);
             }, 2000);
         }
-
         // Event listeners
         elements.startButton.addEventListener('click', startGame);
         elements.pauseButton.addEventListener('click', pauseGame);
@@ -441,13 +449,14 @@
             elements.leaderboard.style.display =
                 elements.leaderboard.style.display === 'none' ? 'block' : 'none';
 
+
             if (elements.leaderboard.style.display === 'block') {
                 mask.style.display = 'block';
                 fetchLeaderboardData((scores) => {
                     const leaderboardList = document.getElementById('leaderboard-list');
                     leaderboardList.innerHTML = '';  // 清空現有的排行榜
 
-                    // 遍歷排行榜數據，最多顯示前5名
+                    // 遍歷排行榜數據，最多顯示前10名
                     scores.slice(0, 10).forEach((entry, index) => {
                         const li = document.createElement('li');
 
@@ -474,8 +483,29 @@
                         // 將 li 添加到排行榜列表中
                         leaderboardList.appendChild(li);
                     });
+
+                    // 顯示個人排名
+                    const userRankingSection = document.getElementById("user-score");
+                    const savedUsername = localStorage.getItem("username");
+
+                    if (savedUsername) {
+                        const userRankEl = document.createElement('li');  // 動態創建顯示個人排名的元素
+
+                        const userIndex = scores.findIndex(score => score.name === savedUsername);
+
+                        if (userIndex >= 0) {
+                            userRankEl.textContent = `您的排名：${userIndex + 1} | 分數：${scores[userIndex].score}`;
+                            userRankingSection.appendChild(userRankEl);  // 添加到個人排名顯示區域
+                        } else {
+                            userRankEl.textContent = "您還未上榜";  // 顯示未上榜的訊息
+                            userRankingSection.appendChild(userRankEl);
+                        }
+                    } else {
+                        userRankingSection.innerHTML = '';  // 如果沒設置用戶名，清空個人排名區域
+                    }
                 });
             }
+
         });
 
 
@@ -488,6 +518,7 @@
         elements.submitScoreButton.addEventListener('click', async () => {
             const username = document.getElementById('username').value;
             if (username) {
+                localStorage.setItem('username', username); // 保存用戶名
                 await submitScoreToFirebase(username, GameState.score);
                 alert(`已提交分數！玩家：${username}，分數：${GameState.score}`);
                 elements.endGameDisplay.style.display = 'none';

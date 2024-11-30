@@ -20,7 +20,7 @@
 </head>
 
 <body>
-    <p class="version">測試版本1.0.4</p>
+    <p class="version">測試版本1.0.2(原始)</p>
     <div class="hamster_game_box">
         <button id="leaderboard-button">排行榜</button>
         <div id="mask_bg"></div>
@@ -101,7 +101,7 @@
         import { getDatabase, ref, set, push, onValue, get, query, orderByChild }
             from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        const firebaseConfig = {
+            const firebaseConfig = {
             apiKey: "AIzaSyB55n9AKgiOC2zQ-HW7sMx1HhScz6vxMI4",
             authDomain: "dev-shubalaxi.firebaseapp.com",
             projectId: "dev-shubalaxi",
@@ -276,7 +276,7 @@
                     playSoundWithWebAudio('music/click.mp3');
                 }
 
-                hamster.style.transform = "scale(0.8)"
+                // 立即移除，不使用淡出效果
                 hamster.remove();
 
                 elements.score.textContent = GameState.score;
@@ -320,7 +320,7 @@
             // 隨機時間觸發 Boss 模式
             setTimeout(() => {
                 if (GameState.isPlaying) startBossMode();
-            }, randomTime(25000, 30000));
+            }, 30000);
 
             // 設置遊戲計時器
             const timerInterval = setInterval(() => {
@@ -569,18 +569,6 @@
             }
         });
 
-    </script>
-
-    <script>
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length > 1) {
-                event.preventDefault(); // 阻止縮放
-            }
-        }, { passive: false });
-
-        document.addEventListener('click', function(event) {
-            event.stopPropagation();
-        }, true);
     </script>
 </body>
 

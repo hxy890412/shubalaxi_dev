@@ -515,11 +515,11 @@ p.version{
 }
 
 
-* {
-    touch-action: manipulation; /* 允許點擊但禁止縮放 */
-    -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
-}
+/* * {
+    touch-action: manipulation; 
+    -webkit-tap-highlight-color: transparent; 
+} */
 
-.hamster {
-    touch-action: auto; /* 確保鼠鼠可以正常點擊 */
-}
+/* .hamster {
+    touch-action: auto; 
+} */
