@@ -20,7 +20,7 @@
 </head>
 
 <body>
-    <p class="version">測試版本1.0.3</p>
+    <p class="version">測試版本1.0.4</p>
     <div class="hamster_game_box">
         <button id="leaderboard-button">排行榜</button>
         <div id="mask_bg"></div>
@@ -276,7 +276,7 @@
                     playSoundWithWebAudio('music/click.mp3');
                 }
 
-                // 立即移除，不使用淡出效果
+                hamster.style.transform = "scale(0.8)"
                 hamster.remove();
 
                 elements.score.textContent = GameState.score;
