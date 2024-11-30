@@ -513,3 +513,13 @@ p.version{
     font-size: 8px;
     z-index: 2;
 }
+
+
+* {
+    touch-action: manipulation; /* 允許點擊但禁止縮放 */
+    -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
+}
+
+.hamster {
+    touch-action: auto; /* 確保鼠鼠可以正常點擊 */
+}

@@ -570,6 +570,18 @@
         });
 
     </script>
+
+    <script>
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault(); // 阻止縮放
+            }
+        }, { passive: false });
+
+        document.addEventListener('click', function(event) {
+            event.stopPropagation();
+        }, true);
+    </script>
 </body>
 
 </html>
